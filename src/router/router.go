@@ -1,12 +1,12 @@
 package router
 
 import (
-	"api/src/router/routers"
+	"api/src/router/routes"
 
 	"github.com/julienschmidt/httprouter"
 )
 
 func Generator() *httprouter.Router {
 	router := httprouter.New()
-	return routers.Config(router)
+	return routes.Config(router)
 }

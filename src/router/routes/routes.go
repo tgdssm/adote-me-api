@@ -1,4 +1,4 @@
-package routers
+package routes
 
 import (
 	"net/http"
@@ -14,9 +14,9 @@ type Route struct {
 }
 
 func Config(router *httprouter.Router) *httprouter.Router {
-	routers := userRoutes
+	routes := userRoutes
 
-	for _, route := range routers {
+	for _, route := range routes {
 		switch route.Method {
 		case http.MethodPost:
 			router.POST(route.Uri, route.Function)

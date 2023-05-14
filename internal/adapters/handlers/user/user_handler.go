@@ -32,7 +32,7 @@ func (uh userHandler) Create(w http.ResponseWriter, r *http.Request, _ httproute
 		return
 	}
 
-	var user *domain.User = &domain.User{
+	user := &domain.User{
 		Name:      r.FormValue("name"),
 		Email:     r.FormValue("email"),
 		Passwd:    r.FormValue("passwd"),
@@ -80,7 +80,7 @@ func (uh userHandler) List(w http.ResponseWriter, r *http.Request, _ httprouter.
 
 }
 
-func (uh userHandler) Get(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+func (uh userHandler) Get(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
 	param, err := strconv.ParseInt(p.ByName("id"), 10, 32)
 
 	if err != nil {

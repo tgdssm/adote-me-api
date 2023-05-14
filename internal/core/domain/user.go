@@ -25,25 +25,25 @@ func (u *User) Prepare() error {
 	return nil
 }
 
-func (u User) validator() error {
+func (u *User) validator() error {
 	if u.Name == "" {
-		return errors.New("The name is mandatory and cannot be blank")
+		return errors.New("the name is mandatory and cannot be blank")
 	}
 	if u.Email == "" {
-		return errors.New("The email is mandatory and cannot be blank")
+		return errors.New("the email is mandatory and cannot be blank")
 	}
 	if u.Passwd == "" {
-		return errors.New("The password is mandatory and cannot be blank")
+		return errors.New("the password is mandatory and cannot be blank")
 	}
 	if u.Cellphone == "" {
-		return errors.New("The cellphone number is mandatory and cannot be blank")
+		return errors.New("the cellphone number is mandatory and cannot be blank")
 	}
 	if u.PicturePath == "" {
-		return errors.New("The picture path is mandatory and cannot be blank")
+		return errors.New("the picture path is mandatory and cannot be blank")
 	}
 
 	if len(u.Cellphone) > 15 || len(u.Cellphone) < 9 {
-		return errors.New("Number of invalid digits for a mobile number")
+		return errors.New("number of invalid digits for a mobile number")
 	}
 
 	return nil

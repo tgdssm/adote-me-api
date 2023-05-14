@@ -5,24 +5,24 @@ import (
 	"api/internal/core/ports"
 )
 
-type userUseCase struct {
+type UserUseCase struct {
 	repo ports.UserRepository
 }
 
-func NewUserUseCase(repo ports.UserRepository) *userUseCase {
-	return &userUseCase{
+func NewUserUseCase(repo ports.UserRepository) *UserUseCase {
+	return &UserUseCase{
 		repo: repo,
 	}
 }
 
-func (u userUseCase) Create(user *domain.User) (*domain.User, error) {
+func (u UserUseCase) Create(user *domain.User) (*domain.User, error) {
 	return u.repo.Create(user)
 }
 
-func (u userUseCase) List(queryParameter string) ([]domain.User, error) {
+func (u UserUseCase) List(queryParameter string) ([]domain.User, error) {
 	return u.repo.List(queryParameter)
 }
 
-func (u userUseCase) Get(id int) (*domain.User, error) {
+func (u UserUseCase) Get(id int) (*domain.User, error) {
 	return u.repo.Get(id)
 }

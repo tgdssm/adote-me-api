@@ -10,22 +10,22 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 )
 
-type userMysqlRepository struct {
+type UserMysqlRepository struct {
 	db *sql.DB
 }
 
-func NewUserMysqlRepository() *userMysqlRepository {
+func NewUserMysqlRepository() *UserMysqlRepository {
 	db, err := sql.Open("mysql", helpers.ConnectionString)
 	if err != nil {
 		db.Close()
 		log.Fatal(err)
 	}
-	return &userMysqlRepository{
+	return &UserMysqlRepository{
 		db: db,
 	}
 }
 
-func (repo userMysqlRepository) Create(user *domain.User) (*domain.User, error) {
+func (repo UserMysqlRepository) Create(user *domain.User) (*domain.User, error) {
 	statement, err := repo.db.Prepare("insert into users(username, email, cellphone, passwd, picturePath) values(?, ?, ?, ?, ?)")
 	if err != nil {
 		return nil, err
@@ -48,8 +48,8 @@ func (repo userMysqlRepository) Create(user *domain.User) (*domain.User, error) 
 	return user, nil
 }
 
-func (repo userMysqlRepository) List(queryParameter string) ([]domain.User, error) {
-	users := []domain.User{}
+func (repo UserMysqlRepository) List(queryParameter string) ([]domain.User, error) {
+	var users []domain.User
 	var rows *sql.Rows
 	var err error
 	if queryParameter == "" {
@@ -78,7 +78,7 @@ func (repo userMysqlRepository) List(queryParameter string) ([]domain.User, erro
 	return users, nil
 }
 
-func (repo userMysqlRepository) Get(id int) (*domain.User, error) {
+func (repo UserMysqlRepository) Get(id int) (*domain.User, error) {
 	var user domain.User
 
 	row, err := repo.db.Query("select id, username, email, picturePath, cellphone, createdAt from users where id = ?", id)

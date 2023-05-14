@@ -7,6 +7,7 @@ create table users(
     id int auto_increment primary key,
     username varchar(50) not null,
     email varchar(50) not null unique,
+    cellphone varchar(15) not null unique,
     passwd varchar(20) not null,
     picturePath varchar(200) null,
     createdAt timestamp default current_timestamp()

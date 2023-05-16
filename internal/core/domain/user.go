@@ -7,13 +7,13 @@ import (
 )
 
 type User struct {
-	ID          uint64    `json:"id,omitempty"` // omitempty não deixa passar o valor zero do uint64 para o json
-	Name        string    `json:"name,omitempty"`
-	Email       string    `json:"email,omitempty"`
-	Cellphone   string    `json:"cellphone,omitempty"`
-	Passwd      string    `json:"passwd,omitempty"`
-	PicturePath string    `json:"picture,omitempty"`
-	CreatedAt   time.Time `json:"createdAt,omitempty"`
+	ID           uint64       `json:"id,omitempty"` // omitempty não deixa passar o valor zero do uint64 para o json
+	Name         string       `json:"name,omitempty"`
+	Email        string       `json:"email,omitempty"`
+	Cellphone    string       `json:"cellphone,omitempty"`
+	Passwd       string       `json:"passwd,omitempty"`
+	ProfileImage ProfileImage `json:"profile_image,omitempty"`
+	CreatedAt    time.Time    `json:"create_at,omitempty"`
 }
 
 func (u *User) Prepare() error {
@@ -37,9 +37,6 @@ func (u *User) validator() error {
 	}
 	if u.Cellphone == "" {
 		return errors.New("the cellphone number is mandatory and cannot be blank")
-	}
-	if u.PicturePath == "" {
-		return errors.New("the picture path is mandatory and cannot be blank")
 	}
 
 	if len(u.Cellphone) > 15 || len(u.Cellphone) < 9 {

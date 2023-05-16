@@ -26,3 +26,7 @@ func (u UserUseCase) List(queryParameter string) ([]domain.User, error) {
 func (u UserUseCase) Get(id int) (*domain.User, error) {
 	return u.repo.Get(id)
 }
+
+func (u UserUseCase) Update(user *domain.User) (*domain.User, error) {
+	return u.repo.Update(user)
+}

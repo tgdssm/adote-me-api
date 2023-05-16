@@ -4,6 +4,8 @@ import (
 	"api/helpers"
 	"api/internal/core/domain"
 	"api/internal/core/ports"
+	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 	"strings"
@@ -22,33 +24,23 @@ func NewUserHandler(userUseCase ports.UserUseCase, router *httprouter.Router) {
 
 	router.POST("/users", handler.Create)
 	router.GET("/users", handler.List)
-	router.POST("/users/:id", handler.Get)
+	router.GET("/users/:id", handler.Get)
+	router.PUT("/users/:id", handler.Update)
 
 }
 
 func (uh userHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
-	if err := r.ParseMultipartForm(100); err != nil {
-		helpers.ERROR(w, http.StatusBadRequest, err)
-		return
-	}
+	body, err := io.ReadAll(r.Body)
 
-	user := &domain.User{
-		Name:      r.FormValue("name"),
-		Email:     r.FormValue("email"),
-		Passwd:    r.FormValue("passwd"),
-		Cellphone: r.FormValue("cellphone"),
-	}
-
-	file, hfile, err := r.FormFile("profilePicture")
 	if err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
-	defer file.Close()
 
-	user.PicturePath, err = helpers.StorePictureInLocalFolder(file, hfile, "profile-pictures")
-	if err != nil {
-		helpers.ERROR(w, http.StatusInternalServerError, err)
+	var user *domain.User
+
+	if err = json.Unmarshal(body, &user); err != nil {
+		helpers.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -89,6 +81,42 @@ func (uh userHandler) Get(w http.ResponseWriter, _ *http.Request, p httprouter.P
 	}
 
 	user, err := uh.userUseCase.Get(int(param))
+	if err != nil {
+		helpers.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	helpers.JSON(w, http.StatusOK, user)
+}
+
+func (uh userHandler) Update(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	param, err := strconv.ParseInt(p.ByName("id"), 10, 32)
+	if err != nil {
+		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	var user *domain.User
+
+	if err = json.Unmarshal(body, &user); err != nil {
+		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user.ID = uint64(param)
+
+	if err = user.Prepare(); err != nil {
+		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user, err = uh.userUseCase.Update(user)
 	if err != nil {
 		helpers.ERROR(w, http.StatusInternalServerError, err)
 		return

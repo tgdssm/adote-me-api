@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/fs"
 	"mime/multipart"
 	"os"
 	"path/filepath"
@@ -12,10 +13,24 @@ import (
 )
 
 func CheckIfExists(filePath string) bool {
-	if _, err := os.Stat(filePath); errors.Is(err, os.ErrNotExist) {
-		return true
+	err := filepath.Walk(filePath, func(path string, info fs.FileInfo, err error) error {
+		fmt.Println(path, filePath)
+		if path == filePath {
+			return nil
+		}
+		return errors.New("NotExist")
+	})
+	if err != nil {
+		return false
 	}
-	return false
+	return true
+}
+
+func DeleteFile(filepath string) error {
+	if err := os.RemoveAll(filepath); err != nil {
+		return err
+	}
+	return nil
 }
 
 func GetFilePathAndFileName(folder string) (string, string, error) {

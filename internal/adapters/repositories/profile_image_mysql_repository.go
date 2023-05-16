@@ -55,7 +55,7 @@ func (repo ProfileImageMysqlRepository) Update(profileImage *domain.ProfileImage
 
 	defer statement.Close()
 
-	_, err = repo.db.Exec(profileImage.FileName, profileImage.FilePath, profileImage.ID)
+	_, err = statement.Exec(profileImage.FileName, profileImage.FilePath, profileImage.ID)
 	if err != nil {
 		return nil, err
 	}

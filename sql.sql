@@ -1,3 +1,4 @@
+-- drop database adote_me;
 create database if not exists adote_me;
 use adote_me;
 
@@ -16,8 +17,8 @@ create table users(
 
 create table profile_images(
     id int auto_increment primary key,
-    file_name varchar(50) not null,
-    file_path varchar(50) not null unique,
+    file_name varchar(150) not null,
+    file_path varchar(200) not null unique,
     user_id int,
     constraint fk_user_id foreign key (user_id)
     references users(id)

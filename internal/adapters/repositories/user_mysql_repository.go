@@ -33,12 +33,12 @@ func (repo UserMysqlRepository) Create(user *domain.User) (*domain.User, error) 
 
 	defer statement.Close()
 
-	result, err := statement.Exec(user.Name, user.Email, user.Cellphone, user.Passwd)
+	insert, err := statement.Exec(user.Name, user.Email, user.Cellphone, user.Passwd)
 	if err != nil {
 		return nil, err
 	}
 
-	lastId, err := result.LastInsertId()
+	lastId, err := insert.LastInsertId()
 	if err != nil {
 		return nil, err
 	}
@@ -87,6 +87,8 @@ func (repo UserMysqlRepository) Get(id int) (*domain.User, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	defer row.Close()
 
 	if row.Next() {
 		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Cellphone, &user.CreatedAt); err != nil {

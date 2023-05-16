@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="SqlDialectMappings">
-    <file url="file://$PROJECT_DIR$/internal/adapters/repositories/profile_image/profile_image_mysql_repository.go" dialect="GenericSQL" />
-    <file url="file://$PROJECT_DIR$/internal/adapters/repositories/user/user_mysql_repository.go" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/internal/adapters/repositories/profile_image_mysql_repository.go" dialect="GenericSQL" />
+    <file url="file://$PROJECT_DIR$/internal/adapters/repositories/user_mysql_repository.go" dialect="GenericSQL" />
   </component>
 </project>

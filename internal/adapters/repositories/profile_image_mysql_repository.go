@@ -1,9 +1,10 @@
-package profile_image
+package repositories
 
 import (
 	"api/helpers"
 	"api/internal/core/domain"
 	"database/sql"
+	"fmt"
 	"log"
 )
 
@@ -30,8 +31,8 @@ func (repo ProfileImageMysqlRepository) Create(profileImage *domain.ProfileImage
 	}
 
 	defer statement.Close()
-
-	insert, err := repo.db.Exec(profileImage.FileName, profileImage.FilePath, profileImage.UserID)
+	fmt.Println(profileImage)
+	insert, err := statement.Exec(profileImage.FileName, profileImage.FilePath, profileImage.UserID)
 	if err != nil {
 		return nil, err
 	}
@@ -47,7 +48,7 @@ func (repo ProfileImageMysqlRepository) Create(profileImage *domain.ProfileImage
 }
 
 func (repo ProfileImageMysqlRepository) Update(profileImage *domain.ProfileImage) (*domain.ProfileImage, error) {
-	statement, err := repo.db.Prepare("update set file_name = ?, file_path = ? where id = ?")
+	statement, err := repo.db.Prepare("update profile_images set file_name = ?, file_path = ? where id = ?")
 	if err != nil {
 		return nil, err
 	}

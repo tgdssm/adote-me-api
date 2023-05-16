@@ -82,7 +82,7 @@ func (repo UserMysqlRepository) List(queryParameter string) ([]domain.User, erro
 func (repo UserMysqlRepository) Get(id int) (*domain.User, error) {
 	var user domain.User
 
-	row, err := repo.db.Query("select id, username, email, cellphone, created_at from users where id = ?", id)
+	row, err := repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at, p.id, p.file_name, p.file_path from users u inner join profile_images p on u.id = p.user_id where u.id = ?", id)
 
 	if err != nil {
 		return nil, err
@@ -91,7 +91,7 @@ func (repo UserMysqlRepository) Get(id int) (*domain.User, error) {
 	defer row.Close()
 
 	if row.Next() {
-		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Cellphone, &user.CreatedAt); err != nil {
+		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Cellphone, &user.CreatedAt, &user.ProfileImage.ID, &user.ProfileImage.FileName, &user.ProfileImage.FilePath); err != nil {
 			return nil, err
 		}
 	}

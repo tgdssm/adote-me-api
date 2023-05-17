@@ -26,6 +26,7 @@ func NewUserHandler(userUseCase ports.UserUseCase, router *httprouter.Router) {
 	router.GET("/users", handler.List)
 	router.GET("/users/:id", handler.Get)
 	router.PUT("/users/:id", handler.Update)
+	router.DELETE("/users/:id", handler.Delete)
 
 }
 
@@ -60,6 +61,7 @@ func (uh userHandler) Create(w http.ResponseWriter, r *http.Request, _ httproute
 
 func (uh userHandler) List(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
 	query := strings.ToLower(r.URL.Query().Get("users"))
+	var users []domain.User
 
 	users, err := uh.userUseCase.List(query)
 
@@ -116,11 +118,25 @@ func (uh userHandler) Update(w http.ResponseWriter, r *http.Request, p httproute
 		return
 	}
 
-	user, err = uh.userUseCase.Update(user)
+	err = uh.userUseCase.Update(user)
 	if err != nil {
 		helpers.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 
 	helpers.JSON(w, http.StatusOK, user)
+}
+
+func (uh userHandler) Delete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	param, err := strconv.ParseInt(p.ByName("id"), 10, 64)
+	if err != nil {
+		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if err = uh.userUseCase.Delete(int(param)); err != nil {
+		helpers.ERROR(w, http.StatusInternalServerError, err)
+	}
+
+	helpers.JSON(w, http.StatusNoContent, param)
 }

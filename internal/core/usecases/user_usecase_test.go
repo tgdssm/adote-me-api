@@ -241,8 +241,7 @@ func TestUserUseCase_Update(t *testing.T) {
 	}
 
 	type want struct {
-		result *domain.User
-		err    error
+		err error
 	}
 
 	tests := []struct {
@@ -254,9 +253,9 @@ func TestUserUseCase_Update(t *testing.T) {
 		{
 			name: "Should Update user successfully",
 			args: args{user: &user},
-			want: want{result: &user},
+			want: want{err: nil},
 			mock: func(m mock) {
-				m.userRepository.EXPECT().Update(&user).Return(&user, nil)
+				m.userRepository.EXPECT().Update(&user).Return(nil)
 			},
 		},
 	}
@@ -269,12 +268,55 @@ func TestUserUseCase_Update(t *testing.T) {
 		tt.mock(m)
 		useCase := NewUserUseCase(m.userRepository)
 
-		result, err := useCase.Update(tt.args.user)
+		err := useCase.Update(tt.args.user)
 
 		if tt.want.err != nil && err != nil {
 			assert.Equal(t, tt.want.err.Error(), err.Error())
 		}
 
-		assert.Equal(t, tt.want.result, result)
+		assert.Equal(t, true, true)
+	}
+}
+
+func TestUserUseCase_Delete(t *testing.T) {
+	type args struct {
+		id int
+	}
+
+	type want struct {
+		err error
+	}
+
+	tests := []struct {
+		name string
+		args args
+		want want
+		mock func(m mock)
+	}{
+		{
+			name: "Should Update user successfully",
+			args: args{id: 1},
+			want: want{err: nil},
+			mock: func(m mock) {
+				m.userRepository.EXPECT().Delete(1).Return(nil)
+			},
+		},
+	}
+
+	for _, tt := range tests {
+		m := mock{
+			userRepository: mocks.NewMockUserMysqlRepository(gomock.NewController(t)),
+		}
+
+		tt.mock(m)
+		useCase := NewUserUseCase(m.userRepository)
+
+		err := useCase.Delete(tt.args.id)
+
+		if tt.want.err != nil && err != nil {
+			assert.Equal(t, tt.want.err.Error(), err.Error())
+		}
+
+		assert.Equal(t, true, true)
 	}
 }

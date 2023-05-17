@@ -53,7 +53,6 @@ func (repo UserMysqlRepository) List(queryParameter string) ([]domain.User, erro
 	var rows *sql.Rows
 	var err error
 	if queryParameter == "" {
-
 		rows, err = repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at, p.id, p.file_name, p.file_path from users u inner join profile_images p on u.id = p.user_id")
 
 	} else {
@@ -76,13 +75,17 @@ func (repo UserMysqlRepository) List(queryParameter string) ([]domain.User, erro
 		users = append(users, user)
 	}
 
+	if len(users) == 0 {
+		return []domain.User{}, nil
+	}
+
 	return users, nil
 }
 
 func (repo UserMysqlRepository) Get(id int) (*domain.User, error) {
 	var user domain.User
 
-	row, err := repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at, p.id, p.file_name, p.file_path from users u inner join profile_images p on u.id = p.user_id where u.id = ?", id)
+	row, err := repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at, p.id, p.file_name, p.file_path from users u left join profile_images p on u.id = p.user_id where u.id = ?", id)
 
 	if err != nil {
 		return nil, err
@@ -99,25 +102,35 @@ func (repo UserMysqlRepository) Get(id int) (*domain.User, error) {
 	return &user, nil
 }
 
-func (repo UserMysqlRepository) Update(user *domain.User) (*domain.User, error) {
+func (repo UserMysqlRepository) Update(user *domain.User) error {
 	statement, err := repo.db.Prepare("update users set username = ?, email = ?, cellphone = ? where id = ?")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	defer statement.Close()
 
-	result, err := statement.Exec(user.Name, user.Email, user.Cellphone, user.ID)
+	_, err = statement.Exec(user.Name, user.Email, user.Cellphone, user.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	lastId, err := result.LastInsertId()
+	return nil
+}
+
+func (repo UserMysqlRepository) Delete(id int) error {
+	statement, err := repo.db.Prepare("delete from users where id = ?")
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	user.ID = uint64(lastId)
+	defer statement.Close()
 
-	return user, nil
+	_, err = statement.Exec(id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

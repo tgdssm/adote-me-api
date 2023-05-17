@@ -64,15 +64,26 @@ func (mr *MockUserMysqlRepositoryRecorder) Get(id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockUserMysqlRepository)(nil).Get), id)
 }
 
-func (m *MockUserMysqlRepository) Update(user *domain.User) (*domain.User, error) {
+func (m *MockUserMysqlRepository) Update(user *domain.User) error {
 	m.ctrl.T.Helper()
 	ret := m.ctrl.Call(m, "Update", user)
-	ret0, _ := ret[0].(*domain.User)
-	ret1, _ := ret[1].(error)
-	return ret0, ret1
+	ret0, _ := ret[0].(error)
+	return ret0
 }
 
 func (mr *MockUserMysqlRepositoryRecorder) Update(user interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockUserMysqlRepository)(nil).Update), user)
+}
+
+func (m *MockUserMysqlRepository) Delete(id int) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "Delete", id)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+func (mr *MockUserMysqlRepositoryRecorder) Delete(id interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockUserMysqlRepository)(nil).Delete), id)
 }

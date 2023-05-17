@@ -27,6 +27,10 @@ func (u UserUseCase) Get(id int) (*domain.User, error) {
 	return u.repo.Get(id)
 }
 
-func (u UserUseCase) Update(user *domain.User) (*domain.User, error) {
+func (u UserUseCase) Update(user *domain.User) error {
 	return u.repo.Update(user)
+}
+
+func (u UserUseCase) Delete(id int) error {
+	return u.repo.Delete(id)
 }

@@ -14,6 +14,14 @@ import (
 )
 
 func init() {
+	// Gerando secret key
+	//key := make([]byte, 64)
+	//if _, err := rand.Read(key); err != nil {
+	//	log.Fatal(key)
+	//}
+	//
+	//base64String := base64.StdEncoding.EncodeToString(key)
+
 	helpers.LoadConfig()
 	fmt.Println(helpers.ConnectionString)
 }

@@ -30,11 +30,28 @@ func (lh loginHandler) Login(w http.ResponseWriter, r *http.Request, _ httproute
 
 	request := map[string]string{}
 
-	if err = json.Unmarshal(body, &request); err != nil {
+	if err = json.Unmarshal(body, &request); err != nil || request["email"] == "" || request["passwd"] == "" {
 		helpers.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 
-	helpers.JSON(w, http.StatusOK, request)
+	user, err := lh.loginUseCase.GetByEmail(request["email"])
+	if err != nil {
+		helpers.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	if err = helpers.CheckPasswd(user.Passwd, request["passwd"]); err != nil {
+		helpers.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	token, err := helpers.CreateToken(user.ID)
+	if err != nil {
+		helpers.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	helpers.JSON(w, http.StatusOK, token)
 
 }

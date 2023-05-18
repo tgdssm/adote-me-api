@@ -19,7 +19,7 @@ func NewProfileImageHandler(profileImageUseCase ports.ProfileImageUseCase, route
 		profileImageUseCase: profileImageUseCase,
 	}
 
-	router.POST("/profile-image", handler.Create)
+	router.POST("/profile-image", Logger(Authenticator(handler.Create)))
 	router.PUT("/profile-image/:id", handler.Update)
 }
 
@@ -129,5 +129,4 @@ func (ph profileImageHandler) Update(w http.ResponseWriter, r *http.Request, p h
 	}
 
 	helpers.JSON(w, http.StatusCreated, profileImage)
-
 }

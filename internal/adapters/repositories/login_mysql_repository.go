@@ -25,7 +25,7 @@ func NewLoginMysqlRepository() *LoginMysqlRepository {
 
 func (repo LoginMysqlRepository) GetByEmail(email string) (*domain.User, error) {
 	var user domain.User
-	row, err := repo.db.Query("select id, passw from users where email = ?", email)
+	row, err := repo.db.Query("select id, passwd from users where email = ?", email)
 	if err != nil {
 		return nil, err
 	}

@@ -16,6 +16,7 @@ type User struct {
 	Passwd       string       `json:"passwd,omitempty"`
 	ProfileImage ProfileImage `json:"profile_image,omitempty"`
 	CreatedAt    time.Time    `json:"create_at,omitempty"`
+	Token        string       `json:"token,omitempty"`
 }
 
 func (u *User) Prepare(pwCanBeEmpty bool) error {

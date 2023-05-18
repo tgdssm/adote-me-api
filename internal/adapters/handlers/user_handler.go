@@ -5,6 +5,7 @@ import (
 	"api/internal/core/domain"
 	"api/internal/core/ports"
 	"encoding/json"
+	"errors"
 	"io"
 	"net/http"
 	"strconv"
@@ -22,11 +23,11 @@ func NewUserHandler(userUseCase ports.UserUseCase, router *httprouter.Router) {
 		userUseCase: userUseCase,
 	}
 
-	router.POST("/users", handler.Create)
-	router.GET("/users", handler.List)
-	router.GET("/users/:id", handler.Get)
-	router.PUT("/users/:id", handler.Update)
-	router.DELETE("/users/:id", handler.Delete)
+	router.POST("/users", Logger(handler.Create))
+	router.GET("/users", Logger(Authenticator(handler.List)))
+	router.GET("/users/:id", Logger(Authenticator(handler.Get)))
+	router.PUT("/users/:id", Logger(Authenticator(handler.Update)))
+	router.DELETE("/users/:id", Logger(Authenticator(handler.Delete)))
 
 }
 
@@ -42,6 +43,12 @@ func (uh userHandler) Create(w http.ResponseWriter, r *http.Request, _ httproute
 
 	if err = json.Unmarshal(body, &user); err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	user.Token, err = helpers.CreateToken(user.ID)
+	if err != nil {
+		helpers.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
 
@@ -74,15 +81,20 @@ func (uh userHandler) List(w http.ResponseWriter, r *http.Request, _ httprouter.
 
 }
 
-func (uh userHandler) Get(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
-	param, err := strconv.ParseInt(p.ByName("id"), 10, 32)
+func (uh userHandler) Get(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	userID, err := strconv.ParseUint(p.ByName("id"), 10, 64)
 
 	if err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 
-	user, err := uh.userUseCase.Get(int(param))
+	if err != nil {
+		helpers.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	user, err := uh.userUseCase.Get(int(userID))
 	if err != nil {
 		helpers.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -98,9 +110,19 @@ func (uh userHandler) Update(w http.ResponseWriter, r *http.Request, p httproute
 		return
 	}
 
-	param, err := strconv.ParseInt(p.ByName("id"), 10, 32)
+	tokenUserID, err := helpers.ExtractUserID(r)
+	if err != nil {
+		helpers.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+	userID, err := strconv.ParseUint(p.ByName("id"), 10, 64)
 	if err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	if tokenUserID != userID {
+		helpers.ERROR(w, http.StatusForbidden, errors.New("it is not possible to update a user other than the one who is logged in"))
 		return
 	}
 
@@ -111,7 +133,7 @@ func (uh userHandler) Update(w http.ResponseWriter, r *http.Request, p httproute
 		return
 	}
 
-	user.ID = uint64(param)
+	user.ID = userID
 
 	if err = user.Prepare(true); err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
@@ -128,13 +150,24 @@ func (uh userHandler) Update(w http.ResponseWriter, r *http.Request, p httproute
 }
 
 func (uh userHandler) Delete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	param, err := strconv.ParseInt(p.ByName("id"), 10, 64)
+	userID, err := strconv.ParseUint(p.ByName("id"), 10, 64)
 	if err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 
-	if err = uh.userUseCase.Delete(int(param)); err != nil {
+	tokenUserID, err := helpers.ExtractUserID(r)
+	if err != nil {
+		helpers.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if tokenUserID != userID {
+		helpers.ERROR(w, http.StatusForbidden, errors.New("it is not possible to update a user other than the one who is logged in"))
+		return
+	}
+
+	if err = uh.userUseCase.Delete(int(userID)); err != nil {
 		helpers.ERROR(w, http.StatusInternalServerError, err)
 	}
 

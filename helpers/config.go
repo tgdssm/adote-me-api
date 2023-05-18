@@ -12,6 +12,7 @@ import (
 var (
 	ConnectionString string
 	Port             int64
+	SecretKey        []byte
 )
 
 func LoadConfig() {
@@ -30,5 +31,5 @@ func LoadConfig() {
 		os.Getenv("DB_USER"),
 		os.Getenv("DB_PASSWD"),
 		os.Getenv("DB_NAME"))
-
+	SecretKey = []byte(os.Getenv("SECRET_KEY"))
 }

@@ -1,7 +1,9 @@
 package domain
 
 import (
+	"api/helpers"
 	"errors"
+	"github.com/badoux/checkmail"
 	"strings"
 	"time"
 )
@@ -16,23 +18,28 @@ type User struct {
 	CreatedAt    time.Time    `json:"create_at,omitempty"`
 }
 
-func (u *User) Prepare() error {
-	if err := u.validator(); err != nil {
+func (u *User) Prepare(pwCanBeEmpty bool) error {
+	if err := u.validator(pwCanBeEmpty); err != nil {
 		return err
 	}
 
-	u.format()
+	if err := u.format(pwCanBeEmpty); err != nil {
+		return err
+	}
 	return nil
 }
 
-func (u *User) validator() error {
+func (u *User) validator(pwCanBeEmpty bool) error {
 	if u.Name == "" {
 		return errors.New("the name is mandatory and cannot be blank")
 	}
 	if u.Email == "" {
 		return errors.New("the email is mandatory and cannot be blank")
 	}
-	if u.Passwd == "" {
+	if err := checkmail.ValidateFormat(u.Email); err != nil {
+		return errors.New("the email entered is invalid")
+	}
+	if !pwCanBeEmpty && u.Passwd == "" {
 		return errors.New("the password is mandatory and cannot be blank")
 	}
 	if u.Cellphone == "" {
@@ -46,7 +53,16 @@ func (u *User) validator() error {
 	return nil
 }
 
-func (u *User) format() {
+func (u *User) format(pwCanBeEmpty bool) error {
 	u.Name = strings.TrimSpace(u.Name)
 	u.Email = strings.TrimSpace(u.Email)
+
+	if !pwCanBeEmpty {
+		passwdWithHash, err := helpers.Hash(u.Passwd)
+		if err != nil {
+			return err
+		}
+		u.Passwd = string(passwdWithHash)
+	}
+	return nil
 }

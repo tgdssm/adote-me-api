@@ -49,7 +49,7 @@ func (repo UserMysqlRepository) Create(user *domain.User) (*domain.User, error) 
 }
 
 func (repo UserMysqlRepository) List(queryParameter string) ([]domain.User, error) {
-	var users []domain.User
+	users := []domain.User{}
 	var rows *sql.Rows
 	var err error
 	if queryParameter == "" {
@@ -73,10 +73,6 @@ func (repo UserMysqlRepository) List(queryParameter string) ([]domain.User, erro
 		}
 
 		users = append(users, user)
-	}
-
-	if len(users) == 0 {
-		return []domain.User{}, nil
 	}
 
 	return users, nil

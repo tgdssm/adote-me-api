@@ -29,5 +29,9 @@ func main() {
 	var profileImageUseCase ports.ProfileImageUseCase = usecases.NewProfileImageUseCase(profileImageRepo)
 	handlers.NewProfileImageHandler(profileImageUseCase, router)
 
+	var loginRepo ports.LoginRepository = repositories.NewLoginMysqlRepository()
+	var loginUseCase ports.LoginUseCase = usecases.NewLoginUseCase(loginRepo)
+	handlers.NewLoginHandler(loginUseCase, router)
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", helpers.Port), router))
 }

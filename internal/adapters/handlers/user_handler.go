@@ -45,7 +45,7 @@ func (uh userHandler) Create(w http.ResponseWriter, r *http.Request, _ httproute
 		return
 	}
 
-	if err = user.Prepare(); err != nil {
+	if err = user.Prepare(false); err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
@@ -113,7 +113,7 @@ func (uh userHandler) Update(w http.ResponseWriter, r *http.Request, p httproute
 
 	user.ID = uint64(param)
 
-	if err = user.Prepare(); err != nil {
+	if err = user.Prepare(true); err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
@@ -138,5 +138,5 @@ func (uh userHandler) Delete(w http.ResponseWriter, r *http.Request, p httproute
 		helpers.ERROR(w, http.StatusInternalServerError, err)
 	}
 
-	helpers.JSON(w, http.StatusNoContent, param)
+	helpers.JSON(w, http.StatusNoContent, nil)
 }

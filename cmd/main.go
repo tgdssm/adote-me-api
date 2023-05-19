@@ -39,7 +39,7 @@ func main() {
 
 	var loginRepo ports.LoginRepository = repositories.NewLoginMysqlRepository()
 	var loginUseCase ports.LoginUseCase = usecases.NewLoginUseCase(loginRepo)
-	handlers.NewLoginHandler(loginUseCase, router)
+	handlers.NewLoginHandler(loginUseCase, userUseCase, router)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", helpers.Port), router))
 }

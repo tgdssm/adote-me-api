@@ -11,11 +11,13 @@ import (
 
 type loginHandler struct {
 	loginUseCase ports.LoginUseCase
+	userUseCase  ports.UserUseCase
 }
 
-func NewLoginHandler(loginUseCase ports.LoginUseCase, router *httprouter.Router) {
+func NewLoginHandler(loginUseCase ports.LoginUseCase, userUseCase ports.UserUseCase, router *httprouter.Router) {
 	handler := &loginHandler{
 		loginUseCase: loginUseCase,
+		userUseCase:  userUseCase,
 	}
 
 	router.POST("/login", handler.Login)
@@ -52,6 +54,9 @@ func (lh loginHandler) Login(w http.ResponseWriter, r *http.Request, _ httproute
 		return
 	}
 
-	helpers.JSON(w, http.StatusOK, token)
+	user, err = lh.userUseCase.Get(int(user.ID))
+	user.Token = token
+
+	helpers.JSON(w, http.StatusOK, user)
 
 }

@@ -43,11 +43,7 @@ create table pet_images(
 	id int auto_increment primary key,
     file_name varchar(150) not null,
     file_path varchar(200) not null unique,
-    user_id int,
     pet_id int,
-    foreign key (user_id)
-    references users(id)
-    on delete cascade,
     foreign key (pet_id)
     references pets(id)
     on delete cascade

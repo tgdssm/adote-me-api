@@ -4,6 +4,8 @@ import (
 	"api/helpers"
 	"api/internal/core/domain"
 	"api/internal/core/ports"
+	"errors"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
@@ -20,7 +22,7 @@ func NewProfileImageHandler(profileImageUseCase ports.ProfileImageUseCase, route
 	}
 
 	router.POST("/profile-image", Logger(Authenticator(handler.Create)))
-	router.PUT("/profile-image/:id", handler.Update)
+	router.PUT("/profile-image/:id", Logger(Authenticator(handler.Update)))
 }
 
 func (ph profileImageHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -28,9 +30,22 @@ func (ph profileImageHandler) Create(w http.ResponseWriter, r *http.Request, _ h
 		helpers.ERROR(w, http.StatusBadRequest, err)
 	}
 
-	userID, err := strconv.ParseInt(r.FormValue("user_id"), 10, 64)
+	userID, err := strconv.ParseUint(r.FormValue("user_id"), 10, 64)
 	if err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	tokenUserID, err := helpers.ExtractUserID(r)
+	if err != nil {
+		helpers.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	fmt.Println(userID)
+	fmt.Println(tokenUserID)
+	if tokenUserID != userID {
+		helpers.ERROR(w, http.StatusForbidden, errors.New("it is not possible to update a user other than the one who is logged in"))
 		return
 	}
 
@@ -51,7 +66,7 @@ func (ph profileImageHandler) Create(w http.ResponseWriter, r *http.Request, _ h
 	profileImage := &domain.ProfileImage{
 		FileName: fileName,
 		FilePath: filePath,
-		UserID:   uint64(userID),
+		UserID:   userID,
 	}
 
 	profileImage, err = ph.profileImageUseCase.Create(profileImage)
@@ -82,9 +97,20 @@ func (ph profileImageHandler) Update(w http.ResponseWriter, r *http.Request, p h
 		return
 	}
 
-	userID, err := strconv.ParseInt(r.FormValue("user_id"), 10, 64)
+	userID, err := strconv.ParseUint(r.FormValue("user_id"), 10, 64)
 	if err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	tokenUserID, err := helpers.ExtractUserID(r)
+	if err != nil {
+		helpers.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if tokenUserID != userID {
+		helpers.ERROR(w, http.StatusForbidden, errors.New("it is not possible to update a user other than the one who is logged in"))
 		return
 	}
 

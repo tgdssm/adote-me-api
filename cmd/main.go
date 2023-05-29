@@ -41,5 +41,11 @@ func main() {
 	var loginUseCase ports.LoginUseCase = usecases.NewLoginUseCase(loginRepo)
 	handlers.NewLoginHandler(loginUseCase, userUseCase, router)
 
+	var petRepo ports.PetRepository = repositories.NewPetMysqlRepository()
+	var petUseCase ports.PetUseCase = usecases.NewPetUseCase(petRepo)
+	var petPhotoRepo ports.PetPhotoRepository = repositories.NewPetPhotoMysqlRepository()
+	var petPhotoUseCase ports.PetPhotoUseCase = usecases.NewPetPhotoUseCase(petPhotoRepo)
+	handlers.NewPetHandler(petUseCase, petPhotoUseCase, router)
+
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", helpers.Port), router))
 }

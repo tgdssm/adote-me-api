@@ -46,7 +46,6 @@ func (uh userHandler) Create(w http.ResponseWriter, r *http.Request, _ httproute
 		return
 	}
 
-	user.Token, err = helpers.CreateToken(user.ID)
 	if err != nil {
 		helpers.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -62,6 +61,7 @@ func (uh userHandler) Create(w http.ResponseWriter, r *http.Request, _ httproute
 		helpers.ERROR(w, http.StatusInternalServerError, err)
 		return
 	}
+	user.Token, err = helpers.CreateToken(user.ID)
 
 	helpers.JSON(w, http.StatusCreated, user)
 }

@@ -3,7 +3,7 @@ create database if not exists adote_me;
 use adote_me;
 
 drop table if exists users;
-drop table if exists profile_images;
+-- drop table if exists profile_images;
 drop table if exists pets;
 drop table if exists pet_images;
 
@@ -17,15 +17,15 @@ create table users(
     -- default current_timestamp() -> por padrão o valor desse campo sempre será a data atual
 );
 
-create table profile_images(
-    id int auto_increment primary key,
-    file_name varchar(150) not null,
-    file_path varchar(200) not null unique,
-    user_id int unique,
-    foreign key (user_id) 
-    references users(id)
-    on delete cascade
-);
+-- create table profile_images(
+   -- id int auto_increment primary key,
+   -- file_name varchar(150) not null,
+   -- file_path varchar(200) not null unique,
+   -- user_id int unique,
+   -- foreign key (user_id) 
+   -- references users(id)
+   -- on delete cascade
+-- );
 
 create table pets(
 	id int auto_increment primary key,

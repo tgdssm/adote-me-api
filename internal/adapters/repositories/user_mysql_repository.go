@@ -53,11 +53,11 @@ func (repo UserMysqlRepository) List(queryParameter string) ([]domain.User, erro
 	var rows *sql.Rows
 	var err error
 	if queryParameter == "" {
-		rows, err = repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at, p.id, p.file_name, p.file_path from users u left join profile_images p on u.id = p.user_id")
+		rows, err = repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at from users u ")
 
 	} else {
 		queryParameter = fmt.Sprintf("%%%s%%", queryParameter)
-		rows, err = repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at, p.id, p.file_name, p.file_path from users u left join profile_images p on u.id = p.user_id and u.username like ?", queryParameter)
+		rows, err = repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at from users u where u.username like ?", queryParameter)
 	}
 
 	if err != nil {
@@ -68,17 +68,17 @@ func (repo UserMysqlRepository) List(queryParameter string) ([]domain.User, erro
 
 	for rows.Next() {
 		var user domain.User
-		var ID *uint64
-		var fileName *string
-		var filePath *string
-		if err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Cellphone, &user.CreatedAt, &ID, &fileName, &filePath); err != nil {
+		//var ID *uint64
+		//var fileName *string
+		//var filePath *string
+		if err = rows.Scan(&user.ID, &user.Name, &user.Email, &user.Cellphone, &user.CreatedAt); err != nil {
 			return nil, err
 		}
-		if ID != nil {
-			user.ProfileImage.ID = *ID
-			user.ProfileImage.FileName = *fileName
-			user.ProfileImage.FilePath = *filePath
-		}
+		//if ID != nil {
+		//	user.ProfileImage.ID = *ID
+		//	user.ProfileImage.FileName = *fileName
+		//	user.ProfileImage.FilePath = *filePath
+		//}
 
 		users = append(users, user)
 	}
@@ -89,7 +89,7 @@ func (repo UserMysqlRepository) List(queryParameter string) ([]domain.User, erro
 func (repo UserMysqlRepository) Get(id int) (*domain.User, error) {
 	var user domain.User
 
-	row, err := repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at, p.id, p.file_name, p.file_path from users u left join profile_images p on u.id = p.user_id where u.id = ?", id)
+	row, err := repo.db.Query("select u.id, u.username, u.email, u.cellphone, u.created_at from users u where u.id = ?", id)
 
 	if err != nil {
 		return nil, err
@@ -98,17 +98,17 @@ func (repo UserMysqlRepository) Get(id int) (*domain.User, error) {
 	defer row.Close()
 
 	if row.Next() {
-		var ID *uint64
-		var fileName *string
-		var filePath *string
-		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Cellphone, &user.CreatedAt, &ID, &fileName, &filePath); err != nil {
+		//var ID *uint64
+		//var fileName *string
+		//var filePath *string
+		if err = row.Scan(&user.ID, &user.Name, &user.Email, &user.Cellphone, &user.CreatedAt); err != nil {
 			return nil, err
 		}
-		if ID != nil {
-			user.ProfileImage.ID = *ID
-			user.ProfileImage.FileName = *fileName
-			user.ProfileImage.FilePath = *filePath
-		}
+		//if ID != nil {
+		//	user.ProfileImage.ID = *ID
+		//	user.ProfileImage.FileName = *fileName
+		//	user.ProfileImage.FilePath = *filePath
+		//}
 	}
 
 	return &user, nil

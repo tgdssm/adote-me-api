@@ -9,14 +9,14 @@ import (
 )
 
 type User struct {
-	ID           uint64       `json:"id,omitempty"` // omitempty não deixa passar o valor zero do uint64 para o json
-	Name         string       `json:"name,omitempty"`
-	Email        string       `json:"email,omitempty"`
-	Cellphone    string       `json:"cellphone,omitempty"`
-	Passwd       string       `json:"passwd,omitempty"`
-	ProfileImage ProfileImage `json:"profile_image,omitempty"`
-	CreatedAt    time.Time    `json:"create_at,omitempty"`
-	Token        string       `json:"token,omitempty"`
+	ID        uint64 `json:"id,omitempty"` // omitempty não deixa passar o valor zero do uint64 para o json
+	Name      string `json:"name,omitempty"`
+	Email     string `json:"email,omitempty"`
+	Cellphone string `json:"cellphone,omitempty"`
+	Passwd    string `json:"passwd,omitempty"`
+	//ProfileImage ProfileImage `json:"profile_image,omitempty"`
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	Token     string    `json:"token,omitempty"`
 }
 
 func (u *User) Prepare(pwCanBeEmpty bool) error {

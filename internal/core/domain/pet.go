@@ -6,7 +6,7 @@ type Pet struct {
 	Age          uint64     `json:"age"`
 	Weight       float64    `json:"weight"`
 	Requirements string     `json:"requirements"`
-	UserId       uint64     `json:"userId"`
+	User         User       `json:"user"`
 	Photos       []PetPhoto `json:"photos"`
 }
 

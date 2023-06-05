@@ -65,7 +65,7 @@ func (ph petHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter
 		Age:          age,
 		Weight:       weight,
 		Requirements: r.FormValue("requirements"),
-		UserId:       userID,
+		User:         domain.User{ID: userID},
 	}
 
 	pet, err = ph.petUseCase.Create(pet)

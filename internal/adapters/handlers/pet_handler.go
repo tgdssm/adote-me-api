@@ -75,7 +75,7 @@ func (ph petHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter
 	}
 
 	for key, _ := range files {
-		filePath, fileName, err := helpers.GetFilePathAndFileName("pet-images")
+		filePath, fileName, relativePath, err := helpers.GetFilePathAndFileName("pet-images")
 		if err != nil {
 			helpers.ERROR(w, http.StatusInternalServerError, err)
 			return
@@ -83,7 +83,7 @@ func (ph petHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter
 
 		petPhoto := &domain.PetPhoto{
 			FileName: fileName,
-			FilePath: filePath,
+			FilePath: relativePath,
 			PetID:    pet.ID,
 		}
 

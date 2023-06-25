@@ -57,7 +57,7 @@ func (ph profileImageHandler) Create(w http.ResponseWriter, r *http.Request, _ h
 
 	defer file.Close()
 
-	filePath, fileName, err := helpers.GetFilePathAndFileName("profile-images")
+	filePath, fileName, _, err := helpers.GetFilePathAndFileName("profile-images")
 	if err != nil {
 		helpers.ERROR(w, http.StatusInternalServerError, err)
 		return
@@ -132,7 +132,7 @@ func (ph profileImageHandler) Update(w http.ResponseWriter, r *http.Request, p h
 		helpers.DeleteFile(profileImage.FilePath)
 	}
 
-	filePath, fileName, err := helpers.GetFilePathAndFileName("profile-images")
+	filePath, fileName, _, err := helpers.GetFilePathAndFileName("profile-images")
 	if err != nil {
 		helpers.ERROR(w, http.StatusInternalServerError, err)
 		return

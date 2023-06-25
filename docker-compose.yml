@@ -1,0 +1,27 @@
+version: '3'
+services:
+  db:
+    container_name: "adote_me_db"
+    networks:
+      - default
+    restart: always
+    ports:
+      - '3308:3308'
+    image: mysql-db
+    environment:
+      MYSQL_ROOT_PASSWORD: RootPassword
+      MYSQL_DATABASE: adote_me
+      MYSQL_USER: MainUser
+      MYSQL_PASSWORD: MainPassword
+  web:
+    container_name: "adote_me_api"
+    build: .
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    volumes:
+      - .:/usr/src/app
+    command: air ./cmd/main.go -b 0.0.0.0
+networks:
+  default:

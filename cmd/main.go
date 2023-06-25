@@ -7,10 +7,9 @@ import (
 	"api/internal/core/ports"
 	"api/internal/core/usecases"
 	"fmt"
+	"github.com/julienschmidt/httprouter"
 	"log"
 	"net/http"
-
-	"github.com/julienschmidt/httprouter"
 )
 
 func init() {
@@ -46,6 +45,8 @@ func main() {
 	var petPhotoRepo ports.PetPhotoRepository = repositories.NewPetPhotoMysqlRepository()
 	var petPhotoUseCase ports.PetPhotoUseCase = usecases.NewPetPhotoUseCase(petPhotoRepo)
 	handlers.NewPetHandler(petUseCase, petPhotoUseCase, router)
+
+	handlers.NewFileServerHandler(router)
 
 	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", helpers.Port), router))
 }

@@ -8,6 +8,7 @@ import (
 	"mime/multipart"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/google/uuid"
 )
@@ -33,18 +34,19 @@ func DeleteFile(filepath string) error {
 	return nil
 }
 
-func GetFilePathAndFileName(folder string) (string, string, error) {
+func GetFilePathAndFileName(folder string) (string, string, string, error) {
 	id := uuid.New().String()
 	fileName := fmt.Sprintf("%s.%s", id, "jpg")
 	currentFolder, err := os.Getwd()
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 
 	folderName := filepath.Join(currentFolder, folder)
 	filePath := filepath.Join(folderName, fileName)
+	relativePath := strings.Split(filePath, "cmd\\")[1]
 
-	return filePath, fileName, nil
+	return filePath, fileName, relativePath, nil
 }
 
 func StorePictureInLocalFolder(file multipart.File, folder, filePath string) error {

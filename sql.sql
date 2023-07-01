@@ -80,6 +80,7 @@ create table pets(
     age int,
     weight decimal(4,2),
     requirements varchar(300),
+    created_at timestamp default current_timestamp(),
     user_id int,
     foreign key (user_id)
     references users(id)

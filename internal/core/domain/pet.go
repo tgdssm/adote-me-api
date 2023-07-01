@@ -1,11 +1,14 @@
 package domain
 
+import "time"
+
 type Pet struct {
 	ID           uint64     `json:"id"`
 	Name         string     `json:"name"`
 	Age          uint64     `json:"age"`
 	Weight       float64    `json:"weight"`
 	Requirements string     `json:"requirements"`
+	CreatedAt    time.Time  `json:"created_at,omitempty"`
 	User         User       `json:"user"`
 	Photos       []PetPhoto `json:"photos"`
 }

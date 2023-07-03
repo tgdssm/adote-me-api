@@ -95,10 +95,52 @@ func (repo PetMysqlRepository) List(queryParameter string) ([]domain.Pet, error)
 	return pets, nil
 }
 
+func (repo PetMysqlRepository) ListByUser(userID int) ([]domain.Pet, error) {
+	var rows *sql.Rows
+	var err error
+	rows, err = repo.db.Query("select p.id, p.pet_name, p.age, p.weight, p.requirements, p.created_at, pi.id, pi.file_name, pi.file_path, u.id, u.username, u.email, u.cellphone, u.created_at from pets p inner join pet_images pi on p.id = pi.pet_id inner join users u on p.user_id = u.id and u.id like ?", userID)
+
+	if err != nil {
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	pets := []domain.Pet{}
+	var pet domain.Pet
+
+	var petPhoto domain.PetPhoto
+	for rows.Next() {
+		if err = rows.Scan(&pet.ID, &pet.Name, &pet.Age, &pet.Weight, &pet.Requirements, &pet.CreatedAt, &petPhoto.ID, &petPhoto.FileName, &petPhoto.FilePath, &pet.User.ID, &pet.User.Name, &pet.User.Email, &pet.User.Cellphone, &pet.User.CreatedAt); err != nil {
+			return nil, err
+		}
+
+		var contains bool
+		var index int
+		for i, p := range pets {
+			if p.ID == pet.ID {
+				contains = true
+				index = i
+				break
+			}
+		}
+
+		if contains {
+			pets[index].Photos = append(pets[index].Photos, petPhoto)
+		} else {
+			// Limpar o slice antes de adicionar uma nova foto de um outro pet
+			pet.Photos = []domain.PetPhoto{petPhoto}
+			pets = append(pets, pet)
+		}
+	}
+
+	return pets, nil
+}
+
 func (repo PetMysqlRepository) Get(id int) (*domain.Pet, error) {
 	var pet domain.Pet
 
-	row, err := repo.db.Query("select * from pets p inner join pet_images pi on p.id = pi.pet_id where p.id = ?", id)
+	row, err := repo.db.Query("select p.id, p.pet_name, p.age, p.weight, p.requirements, p.created_at, pi.id, pi.file_name, pi.file_path, u.id, u.username, u.email, u.cellphone, u.created_at from pets p inner join pet_images pi on p.id = pi.pet_id inner join users u on p.user_id = u.id where p.id = ?", id)
 
 	if err != nil {
 		return nil, err
@@ -109,11 +151,28 @@ func (repo PetMysqlRepository) Get(id int) (*domain.Pet, error) {
 	var petPhoto domain.PetPhoto
 
 	for row.Next() {
-		if err = row.Scan(&pet.ID, &pet.Name, &pet.Age, &pet.Weight, &pet.Requirements, &pet.CreatedAt, &petPhoto.ID, &petPhoto.FileName, &petPhoto.FilePath, &petPhoto.PetID, &pet.ID, &pet.Name, &pet.Age, &pet.Weight, &pet.Requirements, &petPhoto.ID, &petPhoto.FileName, &petPhoto.FilePath, &petPhoto.PetID, &pet.User.ID, &pet.User.Name, &pet.User.Email, &pet.User.Cellphone, &pet.User.CreatedAt); err != nil {
+		if err = row.Scan(&pet.ID, &pet.Name, &pet.Age, &pet.Weight, &pet.Requirements, &pet.CreatedAt, &petPhoto.ID, &petPhoto.FileName, &petPhoto.FilePath, &pet.User.ID, &pet.User.Name, &pet.User.Email, &pet.User.Cellphone, &pet.User.CreatedAt); err != nil {
 			return nil, err
 		}
 		pet.Photos = append(pet.Photos, petPhoto)
 	}
 
 	return &pet, nil
+}
+
+func (repo PetMysqlRepository) Delete(id int) error {
+	statement, err := repo.db.Prepare("delete from pets where id = ?")
+	if err != nil {
+		return err
+	}
+
+	defer statement.Close()
+
+	_, err = statement.Exec(id)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

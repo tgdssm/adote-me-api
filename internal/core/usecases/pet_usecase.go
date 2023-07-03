@@ -23,6 +23,14 @@ func (u PetUseCase) List(queryParameter string) ([]domain.Pet, error) {
 	return u.repo.List(queryParameter)
 }
 
+func (u PetUseCase) ListByUser(userID int) ([]domain.Pet, error) {
+	return u.repo.ListByUser(userID)
+}
+
 func (u PetUseCase) Get(id int) (*domain.Pet, error) {
 	return u.repo.Get(id)
+}
+
+func (u PetUseCase) Delete(id int) error {
+	return u.repo.Delete(id)
 }

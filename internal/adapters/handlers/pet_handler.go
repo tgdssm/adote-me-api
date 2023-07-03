@@ -5,6 +5,7 @@ import (
 	"api/internal/core/domain"
 	"api/internal/core/ports"
 	"errors"
+	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
@@ -24,7 +25,9 @@ func NewPetHandler(petUseCase ports.PetUseCase, petPhotoUseCase ports.PetPhotoUs
 
 	router.POST("/pets", Logger(handler.Create))
 	router.GET("/pets", Logger(Authenticator(handler.List)))
-	router.GET("/pets/:id", Logger(Authenticator(handler.Get)))
+	router.GET("/pets/user/:id", Logger(Authenticator(handler.ListByUser)))
+	//router.GET("/pets/:id", Logger(Authenticator(handler.Get)))
+	//router.DELETE("/pets/:id", Logger(Authenticator(handler.Delete)))
 }
 
 func (ph petHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -74,7 +77,8 @@ func (ph petHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter
 		return
 	}
 
-	for key, _ := range files {
+	for key, file := range files {
+		fmt.Println(file.Filename)
 		filePath, fileName, relativePath, err := helpers.GetFilePathAndFileName("pet-images")
 		if err != nil {
 			helpers.ERROR(w, http.StatusInternalServerError, err)
@@ -126,16 +130,31 @@ func (ph petHandler) List(w http.ResponseWriter, r *http.Request, _ httprouter.P
 
 }
 
-func (ph petHandler) Get(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
-	petID, err := strconv.ParseUint(p.ByName("id"), 10, 64)
-
+func (ph petHandler) ListByUser(w http.ResponseWriter, _ *http.Request, p httprouter.Params) {
+	userID, err := strconv.ParseInt(p.ByName("id"), 10, 64)
 	if err != nil {
 		helpers.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 
+	var pets []domain.Pet
+
+	pets, err = ph.petUseCase.ListByUser(int(userID))
+
 	if err != nil {
-		helpers.ERROR(w, http.StatusUnauthorized, err)
+		helpers.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	helpers.JSON(w, http.StatusOK, pets)
+
+}
+
+func (ph petHandler) Get(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	petID, err := strconv.ParseUint(p.ByName("id"), 10, 64)
+
+	if err != nil {
+		helpers.ERROR(w, http.StatusBadRequest, err)
 		return
 	}
 
@@ -146,4 +165,34 @@ func (ph petHandler) Get(w http.ResponseWriter, r *http.Request, p httprouter.Pa
 	}
 
 	helpers.JSON(w, http.StatusOK, pet)
+}
+
+func (ph petHandler) Delete(w http.ResponseWriter, r *http.Request, p httprouter.Params) {
+	petID, err := strconv.ParseUint(p.ByName("id"), 10, 64)
+
+	if err != nil {
+		helpers.ERROR(w, http.StatusBadRequest, err)
+		return
+	}
+
+	pet, err := ph.petUseCase.Get(int(petID))
+	if err != nil {
+		helpers.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	userID, err := helpers.ExtractUserID(r)
+	if userID != pet.User.ID {
+		helpers.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	err = ph.petUseCase.Delete(int(petID))
+
+	if err != nil {
+		helpers.ERROR(w, http.StatusInternalServerError, err)
+		return
+	}
+
+	helpers.JSON(w, http.StatusOK, nil)
 }

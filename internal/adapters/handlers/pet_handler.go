@@ -22,12 +22,11 @@ func NewPetHandler(petUseCase ports.PetUseCase, petPhotoUseCase ports.PetPhotoUs
 		petUseCase:      petUseCase,
 		petPhotoUseCase: petPhotoUseCase,
 	}
-
 	router.POST("/pets", Logger(handler.Create))
 	router.GET("/pets", Logger(Authenticator(handler.List)))
-	router.GET("/pets/user/:id", Logger(Authenticator(handler.ListByUser)))
-	//router.GET("/pets/:id", Logger(Authenticator(handler.Get)))
 	router.DELETE("/pets/:id", Logger(Authenticator(handler.Delete)))
+	router.GET("/pets/pet/:id", Logger(Authenticator(handler.Get)))
+	router.GET("/pets/user/:id", Logger(Authenticator(handler.ListByUser)))
 }
 
 func (ph petHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {

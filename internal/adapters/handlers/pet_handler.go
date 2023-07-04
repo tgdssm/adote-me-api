@@ -27,7 +27,7 @@ func NewPetHandler(petUseCase ports.PetUseCase, petPhotoUseCase ports.PetPhotoUs
 	router.GET("/pets", Logger(Authenticator(handler.List)))
 	router.GET("/pets/user/:id", Logger(Authenticator(handler.ListByUser)))
 	//router.GET("/pets/:id", Logger(Authenticator(handler.Get)))
-	//router.DELETE("/pets/:id", Logger(Authenticator(handler.Delete)))
+	router.DELETE("/pets/:id", Logger(Authenticator(handler.Delete)))
 }
 
 func (ph petHandler) Create(w http.ResponseWriter, r *http.Request, _ httprouter.Params) {
@@ -181,9 +181,14 @@ func (ph petHandler) Delete(w http.ResponseWriter, r *http.Request, p httprouter
 		return
 	}
 
-	userID, err := helpers.ExtractUserID(r)
-	if userID != pet.User.ID {
+	tokenUserID, err := helpers.ExtractUserID(r)
+	if err != nil {
 		helpers.ERROR(w, http.StatusUnauthorized, err)
+		return
+	}
+
+	if tokenUserID != pet.User.ID {
+		helpers.ERROR(w, http.StatusForbidden, errors.New("it is not possible to delete a user other than the one who is logged in"))
 		return
 	}
 

@@ -5,7 +5,6 @@ import (
 	"api/internal/core/domain"
 	"api/internal/core/ports"
 	"errors"
-	"fmt"
 	"github.com/julienschmidt/httprouter"
 	"net/http"
 	"strconv"
@@ -42,8 +41,6 @@ func (ph profileImageHandler) Create(w http.ResponseWriter, r *http.Request, _ h
 		return
 	}
 
-	fmt.Println(userID)
-	fmt.Println(tokenUserID)
 	if tokenUserID != userID {
 		helpers.ERROR(w, http.StatusForbidden, errors.New("it is not possible to update a user other than the one who is logged in"))
 		return
